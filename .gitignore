@@ -1,4 +1,11 @@
 *.class
+suites/*
+
+
+# idea proj
+*.iml
+*.ipr
+*.iws
 
 # Package Files #
 *.jar
