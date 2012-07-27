@@ -8,35 +8,73 @@
 
     <style type="text/css">
 
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .resultImg {
+            border: 1px solid black;
+        }
+
+        .tabsDiv {
+            background-color: #B5CFCF;
+        }
+
+        .ui-tabs-panel {
+            padding: 1px !important;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
         .overlayImg {
 
         }
     </style>
 
-<script>
+<script type="text/javascript">
+
 $(function() {
     $( ".overlayImg" ).tabs();
+    $( ".overlayImg" ).hide();
+    $( ".overlayImg")[0].show();
 });
-</script>
 
+function showResult(key) {
+    $(".overlayImg").hide();
+    $("#" + key).show();
+    return false;
+}
+</script>
 
 </head>
 <body>
 
-
 <table width="100%" height="100%">
     <tr>
-        <td colspan="2" height="32">
-            Run Report of <b>${suiteName}</b> against <b>${hostName}</b>
+        <td colspan="2" height="32" style="border-bottom: 2px dashed gray; background-color: #d3d3d3;">
+            SkimmyTest: Report of suite <b>${suiteName}</b> against <b>${hostName}</b>
         </td>
     </tr>
     <tr>
-        <td width="100" valign="top">
+        <td width="160" valign="top" style="padding: 0px; border-right: 2px dashed gray;">
+            <!-- TODO automatic resize of scroll area -->
+            <div style="overflow-y: scroll; height: 700px; padding: 8px;">
             <#list items as item>
-               <a href="">${item.key}</a><br/>
+                <#if item.failed>
+                    <a href="#" onclick="showResult('${item.key}');"><span style="color: #CC0000;">${item.key}</span></a><br/>
+                <#else>
+                    <a href="#" onclick="showResult('${item.key}');"><span style="color: #00CC00;">${item.key}</a><br/>
+                </#if>
+                <hr size="1" />
             </#list>
+            </div>
         </td>
-        <td>
+        <td valign="top">
 
         <#list items as item>
             <div id="${item.key}" class="overlayImg">
@@ -49,17 +87,17 @@ $(function() {
                 </ul>
 
                 <#if item.failed>
-                <div id="${item.key}-tabs-1">
-                   <img src="${item.failedImgPath}" width="512" />
+                <div id="${item.key}-tabs-1" class="tabsDiv">
+                   <img src="${item.failedImgPath}" class="resultImg" width="512" />
                 </div>
                 </#if>
 
-                <div id="${item.key}-tabs-2">
-                    <img src="${item.currentImgPath}" width="512" />
+                <div id="${item.key}-tabs-2" class="tabsDiv">
+                    <img src="${item.currentImgPath}" class="resultImg" width="512" />
                 </div>
 
-                <div id="${item.key}-tabs-3">
-                    <img src="${item.wantedImgPath}" width="512"  />
+                <div id="${item.key}-tabs-3" class="tabsDiv">
+                    <img src="${item.wantedImgPath}" class="resultImg" width="512"  />
                 </div>
 
             </div>

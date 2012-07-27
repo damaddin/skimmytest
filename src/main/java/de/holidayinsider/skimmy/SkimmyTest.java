@@ -106,6 +106,7 @@ public class SkimmyTest {
             // if the width differs more than 30% its failed in any case.
             if (Math.abs(width - wantedImg.getWidth()) / width > 0.1 || Math.abs(height - wantedImg.getHeight()) / height > 0.1) {
                 failure = true;
+                totalPixel = 1;
             } else {
                 for (int x = 0; x < width; x++) {
                     for (int y = 0; y < height; y++) {
