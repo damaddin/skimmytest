@@ -15,6 +15,10 @@
             margin: 0px;
         }
 
+        .anchorSelect {
+            border: 1px dashed #ffcc00;
+        }
+
         .resultImg {
             border: 1px solid black;
         }
@@ -44,9 +48,12 @@ $(function() {
     $( ".overlayImg")[0].show();
 });
 
-function showResult(key) {
+function showResult(anchor, key) {
     $(".overlayImg").hide();
     $("#" + key).show();
+
+    $(".anchorSelect").removeClass("anchorSelect");
+    $(this).addClass("anchorSelect");
     return false;
 }
 </script>
@@ -66,9 +73,9 @@ function showResult(key) {
             <div style="overflow-y: scroll; height: 700px; padding: 8px;">
             <#list items as item>
                 <#if item.failed>
-                    <a href="#" onclick="showResult('${item.key}');"><span style="color: #CC0000;">${item.key}</span></a><br/>
+                    <a href="#" onclick="showResult(this, '${item.key}');"><span style="color: #CC0000;">${item.key}</span></a><br/>
                 <#else>
-                    <a href="#" onclick="showResult('${item.key}');"><span style="color: #00CC00;">${item.key}</a><br/>
+                    <a href="#" onclick="showResult(this, '${item.key}');"><span style="color: #00CC00;">${item.key}</a><br/>
                 </#if>
                 <hr size="1" />
             </#list>

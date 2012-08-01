@@ -58,7 +58,10 @@ public class SkimmyTest {
             File wanted = new File(wantedFile);
             // get initial images for those urls and put them in wanted.
             if (!wanted.exists()) {
-                generateImage(key, uri, "suites/" + suiteName + "/wanted");
+                boolean success = generateImage(key, uri, "suites/" + suiteName + "/wanted");
+                if (!success) {
+                    throw new RuntimeException("cannot generate " + uri);
+                }
             }
         }
 
@@ -91,20 +94,24 @@ public class SkimmyTest {
             item.setWantedImgPath("../../wanted/" + key + ".png");
 
             // load live image into suite run dir
-            generateImage(key, url, runTargetDir);
-            BufferedImage currentImg = loadImage(runTargetDir + "/" + key + ".png");
+            BufferedImage currentImg = null;
+            int width = -1;
+            int height = -1;
 
             item.setCurrentImgPath(key + ".png");
+            boolean success = generateImage(key, url, runTargetDir);
 
-            int width = Math.min(wantedImg.getWidth(), currentImg.getWidth());
-            int height = Math.min(wantedImg.getHeight(), currentImg.getHeight());
-
-            boolean failure = false;
+            if (success) {
+                currentImg = loadImage(runTargetDir + "/" + key + ".png");
+                width = Math.min(wantedImg.getWidth(), currentImg.getWidth());
+                height = Math.min(wantedImg.getHeight(), currentImg.getHeight());
+            }
+            boolean failure = !success;
             int totalPixel = 0;
             int failedPixel = 0;
 
             // if the width differs more than 30% its failed in any case.
-            if (Math.abs(width - wantedImg.getWidth()) / width > 0.1 || Math.abs(height - wantedImg.getHeight()) / height > 0.1) {
+            if (failure || (Math.abs(width - wantedImg.getWidth()) / width > 0.1 || Math.abs(height - wantedImg.getHeight()) / height > 0.1)) {
                 failure = true;
                 totalPixel = 1;
             } else {
@@ -158,27 +165,29 @@ public class SkimmyTest {
                 item.setFailedImgPath("failed/" + key + ".png");
 
                 // make all non-failed areas very much lighter to make the error stand out...
-                for (int x = 0; x < currentImg.getWidth(); x++) {
-                    for (int y = 0; y < currentImg.getHeight(); y++) {
-                        int rgb = currentImg.getRGB(x, y);
-                        if (rgb != 0xFFFF0000) {
-                            // make shadow of the page content so you see the errors better.
-                            Color c = new Color(rgb);
-                            c = c.brighter();
-                            // dont make it too bright
-                            if (c.getRGB() != 0xFFFFFFFF) {
+                if (currentImg != null) {
+                    for (int x = 0; x < width; x++) {
+                        for (int y = 0; y < height; y++) {
+                            int rgb = currentImg.getRGB(x, y);
+                            if (rgb != 0xFFFF0000) {
+                                // make shadow of the page content so you see the errors better.
+                                Color c = new Color(rgb);
                                 c = c.brighter();
+                                // dont make it too bright
+                                if (c.getRGB() != 0xFFFFFFFF) {
+                                    c = c.brighter();
+                                }
+                                rgb = c.getRGB();
+                                currentImg.setRGB(x, y, rgb);
                             }
-                            rgb = c.getRGB();
-                            currentImg.setRGB(x, y, rgb);
                         }
                     }
-                }
 
-                try {
-                    ImageIO.write(currentImg, "png", failImage);
-                }  catch (IOException io) {
-                    throw new RuntimeException(io);
+                    try {
+                        ImageIO.write(currentImg, "png", failImage);
+                    }  catch (IOException io) {
+                        throw new RuntimeException(io);
+                    }
                 }
 
                 StringBuilder build = new StringBuilder();
@@ -223,23 +232,22 @@ public class SkimmyTest {
     private boolean checkAreaForFail(int xPoint, int yPoint, BufferedImage image) {
         int failCount = 0;
 
-        int startX = xPoint - 1;
-        int startY = yPoint - 1;
+        int startX = Math.max(xPoint - 1, 0);
+        int startY = Math.max(yPoint - 1, 0);
 
-        int endX = xPoint + 1;
-        int endY = yPoint + 1;
-
-        if (startX < 0) startX = 0;
-        if (endX > image.getWidth() - 1) endX = image.getWidth() -1;
-
-        if (startY < 0) startY = 0;
-        if (endY > image.getWidth() - 1) endX = image.getWidth() -1;
+        int endX = Math.min(xPoint + 1, image.getWidth() -1);
+        int endY = Math.min(yPoint + 1, image.getHeight() -1);
 
         for (int x = startX; x <= endX; x++) {
                 for (int y = startY; y <= endY; y++) {
-                    int rgb = image.getRGB(x, y);
-                    if (rgb == 0xFFFF0000) {
-                        failCount ++;
+                    try {
+                        int rgb = image.getRGB(x, y);
+                        if (rgb == 0xFFFF0000) {
+                            failCount ++;
+                        }
+                    } catch
+                        (ArrayIndexOutOfBoundsException as) {
+                        as.printStackTrace();
                     }
                 }
         }
@@ -280,6 +288,7 @@ public class SkimmyTest {
      * @return
      */
     private boolean generateImage(String tag, String url, String targetDir) {
+        try {
         StringBuilder cmd = new StringBuilder();
         cmd.append("python src/main/resources/webkit2png.py -F -W 1280 -H 1024 --delay 10 ");
         cmd.append("-o current");
@@ -290,6 +299,10 @@ public class SkimmyTest {
         execute(cmd.toString());
         execute("mv current-full.png " + targetDir + "/" + tag + ".png");
         return true;
+        } catch (Exception e) {
+            System.out.println("Error getting image: " + url);
+            return false;
+        }
     }
 
     /**
