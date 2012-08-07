@@ -52,6 +52,18 @@ function showResult(anchor, key) {
     $(".overlayImg").hide();
     $("#" + key).show();
 
+    // remove all big images
+    $(".resultImg").each(function (idx, elem) {
+        var $elem = $(elem);
+        $elem.attr("src", "");
+    });
+
+    // display the selected big images
+    $(".resultImg-" + key).each(function (idx, elem) {
+        var $elem = $(elem);
+        $elem.attr("src", $elem.attr("big"));
+    });
+
     $(".anchorSelect").removeClass("anchorSelect");
     $(this).addClass("anchorSelect");
     return false;
@@ -98,16 +110,22 @@ function showResult(anchor, key) {
 
                 <#if item.failed>
                 <div id="${item.key}-tabs-1" class="tabsDiv">
-                   <img src="${item.failedImgPath}" class="resultImg" width="512" />
+                    <a href="${item.failedImgPath}">
+                        <img big="${item.failedImgPath}" src="" class="resultImg resultImg-${item.key}" width="512" />
+                    </a>
                 </div>
                 </#if>
 
                 <div id="${item.key}-tabs-2" class="tabsDiv">
-                    <img src="${item.currentImgPath}" class="resultImg" width="512" />
+                    <a href="${item.currentImgPath}">
+                        <img big="${item.currentImgPath}" src="" class="resultImg resultImg-${item.key}" width="512" />
+                    </a>
                 </div>
 
                 <div id="${item.key}-tabs-3" class="tabsDiv">
-                    <img src="${item.wantedImgPath}" class="resultImg" width="512"  />
+                    <a href="${item.wantedImgPath}">
+                        <img big="${item.wantedImgPath}" src="" class="resultImg resultImg-${item.key}" width="512"  />
+                    </a>
                 </div>
 
             </div>

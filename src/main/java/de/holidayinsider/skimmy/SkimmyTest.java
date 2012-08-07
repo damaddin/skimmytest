@@ -28,8 +28,8 @@ public class SkimmyTest {
         this.suiteName = suiteName;
 
         try {
-            uriList.load(new FileInputStream(new File("suites/" + suiteName + "/urilist.properties")));
-            hosts.load(new FileInputStream(new File("suites/" + suiteName + "/hosts.properties")));
+            uriList.load(new FileInputStream(new File(suiteName + "/urilist.properties")));
+            hosts.load(new FileInputStream(new File(suiteName + "/hosts.properties")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -45,7 +45,7 @@ public class SkimmyTest {
      */
     public void runTests() {
 
-        File wantedDir = new File("suites/" + suiteName + "/wanted");
+        File wantedDir = new File(suiteName + "/wanted");
         if (!wantedDir.exists()) {
             wantedDir.mkdirs();
         }
@@ -54,11 +54,11 @@ public class SkimmyTest {
         for (Object keyObj : uriList.keySet()) {
             String key = (String) keyObj;
             String uri = buildUri(uriList.getProperty(key));
-            String wantedFile = "suites/" + suiteName + "/wanted/" + key + ".png";
+            String wantedFile = suiteName + "/wanted/" + key + ".png";
             File wanted = new File(wantedFile);
             // get initial images for those urls and put them in wanted.
             if (!wanted.exists()) {
-                boolean success = generateImage(key, uri, "suites/" + suiteName + "/wanted");
+                boolean success = generateImage(key, uri, suiteName + "/wanted");
                 if (!success) {
                     throw new RuntimeException("cannot generate " + uri);
                 }
@@ -66,7 +66,7 @@ public class SkimmyTest {
         }
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        String runTargetDir = "suites/" + suiteName + "/runs/" + format.format(new Date());
+        String runTargetDir = suiteName + "/runs/" + format.format(new Date());
 
         SkimmyReport report = new SkimmyReport();
         report.setSuiteName(suiteName);
@@ -87,11 +87,11 @@ public class SkimmyTest {
             report.getItems().add(item);
 
             // load wanted image
-            String wantedImgFile = "suites/" + suiteName + "/wanted/" + key + ".png";
+            String wantedImgFile = suiteName + "/wanted/" + key + ".png";
             BufferedImage wantedImg = loadImage(wantedImgFile);
 
             // relative path of report.html to the wanted images...
-            item.setWantedImgPath("../../wanted/" + key + ".png");
+            item.setWantedImgPath("../wanted/" + key + ".png");
 
             // load live image into suite run dir
             BufferedImage currentImg = null;
@@ -290,7 +290,7 @@ public class SkimmyTest {
     private boolean generateImage(String tag, String url, String targetDir) {
         try {
         StringBuilder cmd = new StringBuilder();
-        cmd.append("python src/main/resources/webkit2png.py -F -W 1280 -H 1024 --delay 10 ");
+        cmd.append("python ../src/main/resources/webkit2png.py -F -W 1280 -H 1024 --delay 10 ");
         cmd.append("-o current");
         cmd.append(" ");
         cmd.append(url);
