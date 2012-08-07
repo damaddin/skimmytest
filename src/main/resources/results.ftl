@@ -36,7 +36,7 @@
         }
 
         .overlayImg {
-
+            display: none;
         }
     </style>
 
@@ -44,7 +44,7 @@
 
 $(function() {
     $( ".overlayImg" ).tabs();
-    $( ".overlayImg" ).hide();
+    //$( ".overlayImg" ).hide();
     $( ".overlayImg")[0].show();
 });
 
@@ -77,6 +77,9 @@ function showResult(anchor, key) {
                 <#else>
                     <a href="#" onclick="showResult(this, '${item.key}');"><span style="color: #00CC00;">${item.key}</a><br/>
                 </#if>
+                <a href="${item.url}">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAVklEQVQY042PwQ3AMAgDDWK1DOLJGKTD0UekqiQExU/rfJIlIrDkkaWQAto2RvLfuHtSjgCgjWASAKwQZOJgysQBygRGaH++MmUHyfldcRH7Rg10ZXoB+FUcXTkEuSEAAAAASUVORK5CYII=" />
+                </a>
                 <hr size="1" />
             </#list>
             </div>
