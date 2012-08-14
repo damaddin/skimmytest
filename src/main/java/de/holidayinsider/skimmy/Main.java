@@ -1,5 +1,8 @@
 package de.holidayinsider.skimmy;
 
+import sun.misc.IOUtils;
+
+import java.io.*;
 import java.util.Scanner;
 
 /**
@@ -25,8 +28,11 @@ echo $percent
  */
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public Main() {
 
+    }
+
+    public void run(String[] args) throws Exception {
         String hostKey = null;
         String suiteName = null;
 
@@ -41,23 +47,45 @@ public class Main {
         // ask for suite name
         // TODO ask with number
 
+        Scanner in = new Scanner(System.in);
+
         if (suiteName == null) {
             System.out.print("Enter suite name: ");
-            Scanner in = new Scanner(System.in);
             suiteName = in.nextLine();
-            in.close();
         }
 
         if (hostKey == null) {
             System.out.print("Enter host key: ");
-            Scanner in = new Scanner(System.in);
             hostKey = in.nextLine();
-            in.close();
+        }
+        in.close();
+
+        // this unpacks the webkit2png shell script which is needed for execution.
+        File f = new File("webkit2png.py");
+        if (!f.exists()) {
+            System.out.println("spawning webkit2png.py...");
+            InputStream webkitInput = getClass().getClassLoader().getResourceAsStream("webkit2png.py");
+            OutputStream out = new FileOutputStream(f);
+
+            int len;
+            byte[] buf = new byte[1024];
+            while((len = webkitInput.read(buf, 0, 1024)) > 0) {
+                out.write(buf, 0, len);
+            }
+            out.flush();
+            out.close();
+            webkitInput.close();
         }
 
         System.out.println("Running suite " + suiteName + " against " + hostKey);
         SkimmyTest t = new SkimmyTest(suiteName, hostKey);
         t.runTests();
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        Main m = new Main();
+        m.run(args);
     }
 
     private void usage() {

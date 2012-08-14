@@ -91,7 +91,7 @@ public class SkimmyTest {
             BufferedImage wantedImg = loadImage(wantedImgFile);
 
             // relative path of report.html to the wanted images...
-            item.setWantedImgPath("../wanted/" + key + ".png");
+            item.setWantedImgPath("../../wanted/" + key + ".png");
 
             // load live image into suite run dir
             BufferedImage currentImg = null;
@@ -289,15 +289,15 @@ public class SkimmyTest {
      */
     private boolean generateImage(String tag, String url, String targetDir) {
         try {
-        StringBuilder cmd = new StringBuilder();
-        cmd.append("python ../src/main/resources/webkit2png.py -F -W 1280 -H 1024 --delay 10 ");
-        cmd.append("-o current");
-        cmd.append(" ");
-        cmd.append(url);
+            StringBuilder cmd = new StringBuilder();
+            cmd.append("python webkit2png.py -F -W 1280 -H 1024 --delay 10 ");
+            cmd.append("-o current");
+            cmd.append(" ");
+            cmd.append(url);
 
-        System.out.println("Fetching image: " + url);
-        execute(cmd.toString());
-        execute("mv current-full.png " + targetDir + "/" + tag + ".png");
+            System.out.println("Fetching image: " + url);
+            execute(cmd.toString());
+            execute("mv current-full.png " + targetDir + "/" + tag + ".png");
         return true;
         } catch (Exception e) {
             System.out.println("Error getting image: " + url);
